@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 
 function App() {
-  const [level, setLevel] = useState(1);
-  const [hghLevel, setHghLevel] = useState(1);
+  const [level, setLevel] = useState(0);
+  const [hghLevel, setHghLevel] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [result, setResult] = useState(null);
   const [isWaiting, setIsWaiting] = useState(false);
@@ -65,17 +65,17 @@ function App() {
 
     setTimeout(() => {
       setIsWaiting(false);
-      const maxLevel = 14;
-      const successRate = Math.max(1 - (level-1) * 0.07, 0.02);
+      const maxLevel = 15;
+      let successRate;
+      if (level <= 10) {
+        successRate = 1 - (level) * 0.05;
+      } else {
+        successRate = 0.5 - (level - 10) * 0.1;
+      }
       const success = Math.random() < successRate;
 
-      const target = success && level < maxLevel ? level + 1 : 1;
       setAnimating(true);
       setResult(success ? 'success' : 'fail');
-
-      setTimeout(() => {
-        setLevel(target);
-      }, anim_duration / 1.8);
 
       if (success && level < maxLevel) {
         setLevel(prev => prev + 1);
@@ -93,7 +93,7 @@ function App() {
           const color = lvlColor
           particlesRef.current.push(new Particle(x, y, vx, vy, color));
         }
-        if (Math.random() < 0.05) {
+        if (Math.random() < 1) {
           setTimeout(() => {
             setResult(null);
             setIsCritWaiting(true);
@@ -126,7 +126,7 @@ function App() {
       } else {
         setResult('fail')
         if (hghLevel < level) setHghLevel(level);
-        setLevel(1);
+        setLevel(0);
         setTimeout(() => {
           setAnimating(false);
           setResult(null);
@@ -135,7 +135,12 @@ function App() {
     }, 1500);
   }
 
-  const currentRate = Math.max(1 - (level-1) * 0.07, 0.05); 
+  let currentRate;
+    if (level <= 10) {
+      currentRate = 1 - (level) * 0.05;
+    } else {
+      currentRate = 0.5 - (level - 10) * 0.1;
+    }
 
   return (
     <div className={`flex flex-col items-center justify-center w-screen h-screen transition-all`}>
@@ -144,7 +149,7 @@ function App() {
       {result && (
         <div className={`absolute inset-0 pointer-events-none animate-[flash_0.3s_ease-out]`}></div>
       )}
-      <div className={`absolute inset-0 pointer-events-none transition-all duration-1500 ${isCritWaiting ? 'bg-linear-to-r from-purple-900 via-purple-600 to-purple-900' : 'bg-transparent duration-0'}`} />
+      <div className={`absolute inset-0 pointer-events-none transition-all duration-1500 ${isCritWaiting ? 'bg-[linear-gradient(to_right,#a92decff,#c279eaff)] duration-[1000ms]' : 'bg-transparent duration-0'}`} />
       <canvas ref={canvasRef} className='absolute top-0 left-0 w-full h-full pointer-events-none'></canvas>
       <h1 className="text-4xl font-bold mb-6">강화 시스템</h1>
       <div className="text-3xl mb-4">현재 레벨</div>
@@ -155,7 +160,7 @@ function App() {
           fontSize: isWaiting ? '160px' : (isCritWaiting ? '250px ': '60px'),  lineHeight: '1',  
           transition: isCritWaiting ? 'all 1200ms cubic-bezier(0, 0, 0, 1)' : `all ${isWaiting ? '1500ms ease-in-out' : `${result === 'fail' ? '1000ms ease-out' : '200ms ease-in-out'}`}`, 
           textShadow: isCritWaiting ? '0 0 50px #ffffffff' : isWaiting ? `0 0 50px #FFD700` : 'none', 
-          color: isWaiting ? '#FFD700' : '#ffffff'
+          color: (isCritWaiting || isWaiting) ? '#FFD700' : ''
         }}
       >
         {level}
