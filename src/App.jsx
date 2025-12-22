@@ -93,7 +93,7 @@ function App() {
           const color = lvlColor
           particlesRef.current.push(new Particle(x, y, vx, vy, color));
         }
-        if (Math.random() < 1) {
+        if (Math.random() < 0.05) {
           setTimeout(() => {
             setResult(null);
             setIsCritWaiting(true);
