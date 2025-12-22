@@ -68,3 +68,23 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+@keyframes shake {
+  0% {transform: translate(1px, 1px) rotate(0deg);}
+  10% {transform: translate(-1px, -2px) rotate(-1deg);}
+  30% {transform: translate(3px, 2px) rotate(0deg);}
+  50% {transform: translate(-1px, 2px) rotate(1deg);}
+  100% {transform: translate(1px, -2px) rotate(-1deg);}
+}
+
+@keyframes flash {
+  0% {opacity: 1; background-color: white;}
+  100% {opacity: 0; background-color: transparent;}
+}
+
+@keyframes impact-shake {
+  0% {transform: translate(0, 0)}
+  25% {transform: translate(10px, -10px);}
+  50% {transform: translate(-10px, 10px);}
+  75% {transform: translate(5px, -5px);}
+  100% {transform: translate(0, 0);}}

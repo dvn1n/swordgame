@@ -5,10 +5,9 @@ function App() {
   const [hghLevel, setHghLevel] = useState(1);
   const [animating, setAnimating] = useState(false);
   const [result, setResult] = useState(null);
-  const [prevNum, setPrevNum] = useState(1);
-  const [nextNum, setNextNum] = useState(1);
-  const [translateY, setTranslateY] = useState('0%');
-  const [transSize, setTransSize] = useState('1')
+  const [isWaiting, setIsWaiting] = useState(false);
+  const [isCritWaiting, setIsCritWaiting] = useState(false);
+
   const anim_duration = 500;
   const bg_hold = 600;
   const canvasRef = useRef(null);
@@ -58,78 +57,110 @@ function App() {
   }, [])
 
   function enhance() {
-    if (animating) return;
-
-    const maxLevel = 10;
-    const successRate = Math.max(1 - (level-1) * 0.1, 0.05);
-    const success = Math.random() < successRate;
-
-    const target = success && level < maxLevel ? level + 1 : 1;
-    setPrevNum(level);
-    setNextNum(target);
+    if (animating || isWaiting || isCritWaiting) return;
+    
+    setIsWaiting(true);
     setAnimating(true);
-    setResult(success ? 'success' : 'fail');
-    setTranslateY('0%');
-    setTransSize('1');
+    setResult(null);
 
     setTimeout(() => {
-      setTranslateY('-50%');
-      setTransSize('2')
-    }, 20);
+      setIsWaiting(false);
+      const maxLevel = 14;
+      const successRate = Math.max(1 - (level-1) * 0.07, 0.02);
+      const success = Math.random() < successRate;
 
-    setTimeout(() => {
-      setLevel(target);
-    }, anim_duration / 1.8);
+      const target = success && level < maxLevel ? level + 1 : 1;
+      setAnimating(true);
+      setResult(success ? 'success' : 'fail');
 
-    setTimeout(() => {
-      setTranslateY('0%');
-      setTransSize('1');
-      setResult(null);
-      setAnimating(false);
-      setPrevNum(target);
-      setNextNum(target);
-    }, anim_duration);
+      setTimeout(() => {
+        setLevel(target);
+      }, anim_duration / 1.8);
 
-    if (success && level < maxLevel) {
-      setLevel(level + 1);
-      const canvas = canvasRef.current;
-      const x = canvas.width / 2;
-      const y = canvas.height / 2;
-      const colors = ["#ff4848ff", "#48adffff", "#9a48ffff", "#9aff48ff"];
-      const lvlColor = colors[Math.floor(Math.random() * colors.length)];
-      for (let i = 0; i < level * 50; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * level + 2;
-        const vx = Math.cos(angle) * speed;
-        const vy = Math.sin(angle) * speed;
-        const color = lvlColor
-        particlesRef.current.push(new Particle(x, y, vx, vy, color));
+      if (success && level < maxLevel) {
+        setLevel(prev => prev + 1);
+        const canvas = canvasRef.current;
+        const x = canvas.width / 2;
+        const y = canvas.height / 2;
+        const colors = ["#ff4848ff", "#48adffff", "#9a48ffff", "#9aff48ff"];
+        const lvlColor = colors[Math.floor(Math.random() * colors.length)];
+        const crtColor = colors[2]
+        for (let i = 0; i < level * 50; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * level + 2;
+          const vx = Math.cos(angle) * speed;
+          const vy = Math.sin(angle) * speed;
+          const color = lvlColor
+          particlesRef.current.push(new Particle(x, y, vx, vy, color));
+        }
+        if (Math.random() < 1) {
+          setTimeout(() => {
+            setResult(null);
+            setIsCritWaiting(true);
+            setTimeout(() => {
+              setIsCritWaiting(false);
+              const jump = Math.random() < 0.5 ? 2 : 1;
+              setLevel(prev => prev + jump);
+              setResult('critical');
+              for (let i = 0; i < level * 50; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * level + 5;
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed;
+                const color = crtColor
+                particlesRef.current.push(new Particle(x, y, vx, vy, color));
+              }
+              if (hghLevel < level) setHghLevel(level);
+              setTimeout(() => {
+                setResult(null);
+                setAnimating(false);
+              }, 1000);
+            }, 1200)
+          }, 1500)
+        } else {
+          setTimeout(() => {
+            setResult(null);
+            setAnimating(false);
+          }, 1000)
+        }
+      } else {
+        setResult('fail')
+        if (hghLevel < level) setHghLevel(level);
+        setLevel(1);
+        setTimeout(() => {
+          setAnimating(false);
+          setResult(null);
+        }, 1000);
       }
-    }
-    else {
-      if (hghLevel < level) setHghLevel(level);
-      setLevel(1);
-    }
+    }, 1500);
   }
 
-  const currentRate = Math.max(1 - (level-1) * 0.1, 0.05);
-  const slotHeight = 48;
-  const translateStyle = {transform: `translateY(${translateY})`, transition: animating ? `transform ${anim_duration}ms cubic-bezier(.2,.9,.2,1)` : 'none'};
-  const fontTranslateStyle = {fontSize: `${32 * transSize}px`, transition: `font-size ${anim_duration}ms`}
+  const currentRate = Math.max(1 - (level-1) * 0.07, 0.05); 
 
   return (
-    <div className="flex flex-col items-center justify-center w-screen h-screen">
-      <div aria-hidden className={`absolute inset-0 pointer-events-none transition-colors duration-200 ${result === 'success' ? 'bg-blue-500/30' : result === 'fail' ? 'bg-red-500/30' : 'bg-transparant' }`}></div>
+    <div className={`flex flex-col items-center justify-center w-screen h-screen transition-all`}>
+      <div aria-hidden className={`absolute inset-0 pointer-events-none transition-colors duration-200 ${result === 'success' ? 'bg-blue-500/30' : result === 'fail' ? 'bg-red-500/30' : 'bg-transparent' }`}></div>
+      <div className={`absolute inset-0 pointer-events-none transition-colors ${isWaiting ? 'bg-gray-900 duration-[1000ms]' : 'bg-transparent duration-0'}`}></div>
+      {result && (
+        <div className={`absolute inset-0 pointer-events-none animate-[flash_0.3s_ease-out]`}></div>
+      )}
+      <div className={`absolute inset-0 pointer-events-none transition-all duration-1500 ${isCritWaiting ? 'bg-linear-to-r from-purple-900 via-purple-600 to-purple-900' : 'bg-transparent duration-0'}`} />
       <canvas ref={canvasRef} className='absolute top-0 left-0 w-full h-full pointer-events-none'></canvas>
       <h1 className="text-4xl font-bold mb-6">강화 시스템</h1>
-      <div className='relative h-12 overflow-hidden text-4xl mb-4' style={{width : `${100 * transSize}px`, height : `${slotHeight * transSize}px`, transition: `width ${anim_duration}ms height ${anim_duration}ms`, display: 'flex', justifyContent: 'center'}}>
-        <div style={translateStyle}>
-          <div style={fontTranslateStyle}>{prevNum}</div>
-          <div style={fontTranslateStyle}>{nextNum}</div>
-        </div>
+      <div className="text-3xl mb-4">현재 레벨</div>
+      <div 
+        className="text-3xl mb-4" 
+        style={{
+          animation: (isWaiting || isCritWaiting) ? 'shake 0.1s infinite' : 'none', 
+          fontSize: isWaiting ? '160px' : (isCritWaiting ? '250px ': '60px'),  lineHeight: '1',  
+          transition: isCritWaiting ? 'all 1200ms cubic-bezier(0, 0, 0, 1)' : `all ${isWaiting ? '1500ms ease-in-out' : `${result === 'fail' ? '1000ms ease-out' : '200ms ease-in-out'}`}`, 
+          textShadow: isCritWaiting ? '0 0 50px #ffffffff' : isWaiting ? `0 0 50px #FFD700` : 'none', 
+          color: isWaiting ? '#FFD700' : '#ffffff'
+        }}
+      >
+        {level}
       </div>
-      <div className="text-3xl mb-4">현재 레벨: {level}</div>
-      <div className='text-3xl mb-4'>성공 확률: {(currentRate * 100).toFixed(1)}%</div>
+        <div className='text-3xl mb-4'>성공 확률: {(currentRate * 100).toFixed(1)}%</div>
       <button
         onClick={enhance}
         className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition"
