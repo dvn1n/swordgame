@@ -7,6 +7,8 @@ function App() {
   const [result, setResult] = useState(null);
   const [isWaiting, setIsWaiting] = useState(false);
   const [isCritWaiting, setIsCritWaiting] = useState(false);
+  const [showAlert, setShowAlert] = useState(null);
+  const [showCong, setShowCong] = useState(null);
 
   const anim_duration = 500;
   const bg_hold = 600;
@@ -135,6 +137,33 @@ function App() {
     }, 1500);
   }
 
+  function handleAlert() {
+    if (level === 0 || animating) return;
+    if (level < 5) {
+      setShowAlert('init');
+    } else if (level < 10) {
+      setShowAlert('sec');
+    } else {
+      setShowAlert('last');
+    }
+  }
+
+  function handleGet() {
+    if (level === 15) {
+      setShowCong('last');
+      setLevel(0);
+    } else if (10 <= level < 15) {
+      setShowCong('sec');
+      setLevel(0);
+    } else if (5 <= level < 10) {
+      setShowCong('init');
+      setLevel(0);
+    } else {
+      setShowCong('err');
+      setLevel(0);
+    }
+  }
+
   let currentRate;
     if (level <= 10) {
       currentRate = 1 - (level) * 0.05;
@@ -168,10 +197,47 @@ function App() {
         <div className='text-3xl mb-4'>성공 확률: {(currentRate * 100).toFixed(1)}%</div>
       <button
         onClick={enhance}
-        className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition"
+        className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition active:scale-95"
       >
         강화 시도
       </button>
+      <button
+        onClick={handleAlert}
+        className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition active:scale-95"
+      >
+        수령하기
+      </button>
+      {showAlert && (
+      <div className="fixed inset-0 z-[500] flex items-center justify-center">
+        <div className={`absolute inset-0 items-center justify-center flex flex-col bg-slate-900 animate-bg-fade`}></div>
+        <div className={`relative z-[510] items-center w-[90%] justify-center bg-purple-500 max-w-md p-10 w-full min-w-[1000px] min-h-[500px] rounded-3xl shadow-[0_0_50px_#783dbcff] flex flex-col animate-box-popup`}>
+          <div className="mb-4 text-center">
+            <h2 className="text-white text-4xl font-black tracking-tight border-b-2 border-white/30 pb-2 whitespace-nowrap">
+              {showAlert === 'init' && '아무것도 안 받겠다고요..?'}
+              {showAlert === 'sec' && '페레로 로쉐 한개로 만족하는 거에요?'}
+            </h2>
+          </div>
+          {showAlert === 'init' && (
+             <img src='/no.png' alt="no" className="w-48 h-48 mb-4 object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]"></img>
+          )}
+          {showAlert === 'sec' && (
+             <img src='/sec.webp' alt="no" className="w-48 h-48 mb-4 object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]"></img>
+          )}
+          <div className="mb-8 text-center">
+            <p className="text-white text-xl font-bold leading-relaxed break-keep">
+              {showAlert === 'init' && '아무것도 안 받을 수는 없어요. \n 5레벨까지 화이팅!'}
+              {showAlert === 'sec' && '설마.. 만족하는 건 아니겠죠..? 신중하게 선택하세요..'}
+            </p>
+          </div>
+          <div className="flex gap-4 w-full">
+            <button onClick={() => setShowAlert(null)} className="flex-[2] bg-blue-400 text-purple-900 py-4 rounded-2xl text-2xl font-black hover:bg-blue-300 transition active:scale-95 shadow-lg">더 도전하기!</button>
+            {level >= 5 && (
+              <button onClick={() => setShowAlert(null)} className="flex-[2] bg-blue-400 text-purple-900 py-4 rounded-2xl text-2xl font-black hover:bg-blue-300 transition active:scale-95 shadow-lg">포기하고 보상 받기</button>
+            )}
+          </div>
+        </div>
+      </div>
+      )}
       <div className="text-3xl mt-4">최고 레벨: {hghLevel}</div>
     </div>
   );
