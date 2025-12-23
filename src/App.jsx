@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 
 function App() {
   const [level, setLevel] = useState(0);
-  const [hghLevel, setHghLevel] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [result, setResult] = useState(null);
   const [isWaiting, setIsWaiting] = useState(false);
@@ -112,7 +111,6 @@ function App() {
                 const color = crtColor
                 particlesRef.current.push(new Particle(x, y, vx, vy, color));
               }
-              if (hghLevel < level) setHghLevel(level);
               setTimeout(() => {
                 setResult(null);
                 setAnimating(false);
@@ -127,7 +125,6 @@ function App() {
         }
       } else {
         setResult('fail')
-        if (hghLevel < level) setHghLevel(level);
         setLevel(0);
         setTimeout(() => {
           setAnimating(false);
@@ -151,17 +148,15 @@ function App() {
   function handleGet() {
     if (level === 15) {
       setShowCong('last');
-      setLevel(0);
-    } else if (10 <= level < 15) {
+      setShowAlert(null)
+    } else if (10 <= level && level < 15) {
       setShowCong('sec');
-      setLevel(0);
-    } else if (5 <= level < 10) {
+      setShowAlert(null)
+    } else if (5 <= level && level < 10) {
       setShowCong('init');
-      setLevel(0);
-    } else {
-      setShowCong('err');
-      setLevel(0);
+      setShowAlert(null)
     }
+    setLevel(0);
   }
 
   let currentRate;
@@ -215,30 +210,64 @@ function App() {
             <h2 className="text-white text-4xl font-black tracking-tight border-b-2 border-white/30 pb-2 whitespace-nowrap">
               {showAlert === 'init' && '아무것도 안 받겠다고요..?'}
               {showAlert === 'sec' && '페레로 로쉐 한개로 만족하는 거에요?'}
+              {showAlert === 'last' && `${15 - level}번만 더 성공하면 키보드인데..`}
             </h2>
           </div>
           {showAlert === 'init' && (
              <img src='/no.png' alt="no" className="w-48 h-48 mb-4 object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]"></img>
           )}
           {showAlert === 'sec' && (
-             <img src='/sec.webp' alt="no" className="w-48 h-48 mb-4 object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]"></img>
+             <img src='/sec.webp' alt="sec" className="w-48 h-48 mb-4 object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]"></img>
+          )}
+          {showAlert === 'last' && (
+             <img src='/last.png' alt="last" className="w-48 h-48 mb-4 object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]"></img>
           )}
           <div className="mb-8 text-center">
             <p className="text-white text-xl font-bold leading-relaxed break-keep">
-              {showAlert === 'init' && '아무것도 안 받을 수는 없어요. \n 5레벨까지 화이팅!'}
+              {showAlert === 'init' && '아무것도 안 받을 수는 없어요. 5레벨까지 화이팅!'}
               {showAlert === 'sec' && '설마.. 만족하는 건 아니겠죠..? 신중하게 선택하세요..'}
+              {showAlert === 'last' && '고지까지 얼마 안남았어요. 화이팅!'}
             </p>
           </div>
           <div className="flex gap-4 w-full">
             <button onClick={() => setShowAlert(null)} className="flex-[2] bg-blue-400 text-purple-900 py-4 rounded-2xl text-2xl font-black hover:bg-blue-300 transition active:scale-95 shadow-lg">더 도전하기!</button>
             {level >= 5 && (
-              <button onClick={() => setShowAlert(null)} className="flex-[2] bg-blue-400 text-purple-900 py-4 rounded-2xl text-2xl font-black hover:bg-blue-300 transition active:scale-95 shadow-lg">포기하고 보상 받기</button>
+              <button onClick={() => handleGet()} className="flex-[2] bg-blue-400 text-purple-900 py-4 rounded-2xl text-2xl font-black hover:bg-blue-300 transition active:scale-95 shadow-lg">포기하고 보상 받기</button>
             )}
           </div>
         </div>
       </div>
       )}
-      <div className="text-3xl mt-4">최고 레벨: {hghLevel}</div>
+      {showCong && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center">
+          <div className={`absolute inset-0 items-center justify-center flex flex-col bg-slate-900 animate-bg-fade`}></div>
+          <div className={`relative z-[510] items-center w-[90%] justify-center bg-blue-500 max-w-md p-10 w-full min-w-[1000px] min-h-[500px] rounded-3xl shadow-[0_0_50px_#4276c9ff] flex flex-col animate-box-popup`}>
+            <div className="mb-4 text-center">
+              <h2 className="text-white text-4xl font-black tracking-tight border-b-2 border-white/30 pb-2 whitespace-nowrap">
+              {showCong === 'init' && '페레로 로쉐 한개 축하해요!'}
+              {showCong === 'sec' && '페레로 로쉐 두개 축하해요!'}
+              {showCong === 'last' && `키보드를 받아가시다니.. 축하해요!`}
+              </h2>
+            </div>
+            {showCong === 'init' && (
+             <img src='/roch.png' alt="one" className="w-80 h-80 mb-4 object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]"></img>
+            )}
+            {showCong === 'sec' && (
+             <img src='/ruch.png' alt="two" className="w-80 h-80 mb-4 object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]"></img>
+            )}
+            {showCong === 'last' && (
+             <img src='/key.png' alt="fin" className="w-80 h-80 mb-4 object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.5)]"></img>
+            )}
+            <div className="mb-8 text-center">
+              <p className="text-white text-xl font-bold leading-relaxed break-keep">
+                {showCong === 'init' && '뭐 조금만 더 했으면 더 좋은 보상이었겠지만..'}
+                {showCong === 'sec' && '조금만 더 했으면 키보드였는데.. 아쉬운거죠!'}
+                {showCong === 'last' && `0.007%를 뚫으시고 키보드를 받으셨네요!`}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
