@@ -94,7 +94,7 @@ function App() {
           const color = lvlColor
           particlesRef.current.push(new Particle(x, y, vx, vy, color));
         }
-        if (Math.random() < 1) {
+        if (Math.random() < 0.05) {
           setTimeout(() => {
             setResult(null);
             setIsCritWaiting(true);
@@ -173,7 +173,7 @@ function App() {
       {result && (
         <div className={`absolute inset-0 pointer-events-none animate-[flash_0.3s_ease-out]`}></div>
       )}
-      <div className={`absolute inset-0 pointer-events-none transition-all duration-1500 ${isCritWaiting ? 'bg-[linear-gradient(to_right,#a92decff,#c279eaff)] duration-[1000ms]' : 'bg-transparent duration-0'}`} />
+      <div className={`absolute inset-0 pointer-events-none transition-all duration-1500 ${isCritWaiting ? 'bg-[linear-gradient(to_right,#2d83ecff,#1a7ec5ff)] duration-[1000ms]' : 'bg-transparent duration-0'}`} />
       <canvas ref={canvasRef} className='absolute top-0 left-0 w-full h-full pointer-events-none'></canvas>
       <h1 className="text-4xl font-bold mb-6">강화 시스템</h1>
       <div className="text-3xl mb-4">현재 레벨</div>
@@ -192,7 +192,7 @@ function App() {
         <div className='text-3xl mb-4'>성공 확률: {(currentRate * 100).toFixed(1)}%</div>
       <button
         onClick={enhance}
-        className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition active:scale-95"
+        className="bg-blue-500 text-white mb-4 px-6 py-3 rounded-lg hover:bg-blue-600 transition active:scale-95"
       >
         강화 시도
       </button>
