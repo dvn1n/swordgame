@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 
 function App() {
   const [level, setLevel] = useState(0);
+  const [tryCount, setTryCount] = useState(3);
   const [animating, setAnimating] = useState(false);
   const [result, setResult] = useState(null);
   const [isWaiting, setIsWaiting] = useState(false);
@@ -126,6 +127,7 @@ function App() {
       } else {
         setResult('fail')
         setLevel(0);
+        setTryCount(prev => prev - 1);
         setTimeout(() => {
           setAnimating(false);
           setResult(null);
@@ -167,7 +169,7 @@ function App() {
     }
 
   return (
-    <div className={`flex flex-col items-center justify-center w-screen h-screen transition-all`}>
+    <div className={`flex flex-col items-center justify-center w-screen h-screen transition-all overflow-hidden animate-gradient`}>
       <div aria-hidden className={`absolute inset-0 pointer-events-none transition-colors duration-200 ${result === 'success' ? 'bg-blue-500/30' : result === 'fail' ? 'bg-red-500/30' : 'bg-transparent' }`}></div>
       <div className={`absolute inset-0 pointer-events-none transition-colors ${isWaiting ? 'bg-gray-900 duration-[1000ms]' : 'bg-transparent duration-0'}`}></div>
       {result && (
@@ -189,7 +191,8 @@ function App() {
       >
         {level}
       </div>
-        <div className='text-3xl mb-4'>성공 확률: {(currentRate * 100).toFixed(1)}%</div>
+      <div className='text-3xl mb-4'>성공 확률: {(currentRate * 100).toFixed(1)}%</div>
+      <div className='text-3xl mb-4'>남은 횟수: {tryCount}번</div>
       <button
         onClick={enhance}
         className="bg-blue-500 text-white mb-4 px-6 py-3 rounded-lg hover:bg-blue-600 transition active:scale-95"
@@ -264,6 +267,20 @@ function App() {
                 {showCong === 'sec' && '조금만 더 했으면 키보드였는데.. 아쉬운거죠!'}
                 {showCong === 'last' && `0.007%를 뚫으시고 키보드를 받으셨네요!`}
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+      {tryCount === 0 && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center">
+          <div className={`absolute inset-0 items-center justify-center flex flex-col bg-slate-900 animate-bg-fade`}></div>
+          <div className={`relative z-[510] items-center w-[90%] justify-center bg-red-500 max-w-md p-10 w-full min-w-[1000px] min-h-[500px] rounded-3xl shadow-[0_0_50px_#f03b3bff] flex flex-col animate-box-popup`}>
+            <div className="mb-4 text-center">
+              <h2 className="text-white text-6xl font-black tracking-tight border-b-2 border-white pb-2 whitespace-nowrap">게임 오버!</h2>
+            </div>
+            <img src='/fin.png' alt="bye" className="w-48 h-48 mb-4 object-contain drop-shadow-[0_0_50px_rgba(241, 39, 39, 0.87)]"></img>
+            <div className="mb-8 text-center">
+              <p className='text-white text-3xl font-bold leading-relaxed break-keep'>세번의 기회를 다 날리셨네요.. 아쉽지만 여기까지!</p>
             </div>
           </div>
         </div>
