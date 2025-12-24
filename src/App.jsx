@@ -177,10 +177,10 @@ function App() {
       )}
       <div className={`absolute inset-0 pointer-events-none transition-all duration-1500 ${isCritWaiting ? 'bg-[linear-gradient(to_right,#2d83ecff,#1a7ec5ff)] duration-[1000ms]' : 'bg-transparent duration-0'}`} />
       <canvas ref={canvasRef} className='absolute top-0 left-0 w-full h-full pointer-events-none'></canvas>
-      <h1 className="text-4xl font-bold mb-6">강화 시스템</h1>
-      <div className="text-3xl mb-4">현재 레벨</div>
+      <h1 className="text-white text-7xl font-bold mb-6">강화 확률 게임</h1>
+      <div className="text-white text-3xl mb-4">현재 레벨</div>
       <div 
-        className="text-3xl mb-4" 
+        className="text-white text-3xl mb-4" 
         style={{
           animation: (isWaiting || isCritWaiting) ? 'shake 0.1s infinite' : 'none', 
           fontSize: isWaiting ? '160px' : (isCritWaiting ? '250px ': '60px'),  lineHeight: '1',  
@@ -191,8 +191,8 @@ function App() {
       >
         {level}
       </div>
-      <div className='text-3xl mb-4'>성공 확률: {(currentRate * 100).toFixed(1)}%</div>
-      <div className='text-3xl mb-4'>남은 횟수: {tryCount}번</div>
+      <div className='text-white text-3xl mb-4'>성공 확률: {(currentRate * 100).toFixed(1)}%</div>
+      <div className='text-white text-3xl mb-4'>남은 횟수: {tryCount}번</div>
       <button
         onClick={enhance}
         className="bg-blue-500 text-white mb-4 px-6 py-3 rounded-lg hover:bg-blue-600 transition active:scale-95"
